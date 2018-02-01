@@ -14,7 +14,8 @@
   "dependencies": {},
   "ava": {
     "failFast": true,
-    "verbose": true
+    "verbose": true,
+    "serial": true
   },
   "devDependencies": {
     "ava": "^0.22.0",

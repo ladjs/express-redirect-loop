@@ -5,6 +5,14 @@ module.exports = (defaultPath = '/') => {
     if (!req.session)
       return next(new Error('Sessions required for `express-redirect-loop`'));
 
+    const end = res.end;
+
+    res.end = function(chunk, encoding) {
+      req.session.prevPrevPath = req.session.prevPath;
+      req.session.prevPath = req.path;
+      end.call(res, chunk, encoding);
+    };
+
     const redirect = res.redirect;
     res.redirect = function(url) {
       let address = url;
@@ -35,9 +43,6 @@ module.exports = (defaultPath = '/') => {
             ? req.prevPrevPath
             : '/';
       }
-
-      req.session.prevPrevPath = req.session.prevPath;
-      req.session.prevPath = address;
 
       redirect.call(res, status, address);
     };

@@ -19,8 +19,20 @@ test.beforeEach(t => {
   app.get('/bar', (req, res) => res.redirect('/foo'));
   app.get('/foo', (req, res) => res.redirect('/foo'));
   app.get('/baz', (req, res) => res.redirect('/bar'));
+  app.get('/beep', (req, res) => res.sendStatus(200));
+  app.get('/boop', (req, res) => res.redirect('/boop'));
   const server = app.listen();
   t.context.url = `http://localhost:${server.address().port}/`;
+});
+
+test('/beep => 200 => /boop => /beep', async t => {
+  let res = await fetch(`${t.context.url}beep`, { credentials: 'include' });
+  t.is(res.url, `${t.context.url}beep`);
+  t.is(res.status, 200);
+  res = await fetch(`${t.context.url}boop`, { credentials: 'include' });
+  t.is(res.url, `${t.context.url}beep`);
+  t.is(res.status, 200);
+  t.pass();
 });
 
 test('/bar => /foo => /', async t => {
