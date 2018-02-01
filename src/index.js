@@ -8,8 +8,10 @@ module.exports = (defaultPath = '/') => {
     const end = res.end;
 
     res.end = function(chunk, encoding) {
-      req.session.prevPrevPath = req.session.prevPath;
-      req.session.prevPath = req.path;
+      if (!req.xhr) {
+        req.session.prevPrevPath = req.session.prevPath;
+        req.session.prevPath = req.path;
+      }
       end.call(res, chunk, encoding);
     };
 
