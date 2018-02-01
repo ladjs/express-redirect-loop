@@ -2,7 +2,7 @@
   "name": "express-redirect-loop",
   "description":
     "Prevent redirect loops with sessions since HTTP referrer header is unreliable",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com/)",
   "bugs": {
     "url": "https://github.com/niftylettuce/express-redirect-loop/issues",
