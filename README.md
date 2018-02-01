@@ -50,7 +50,10 @@ app.use(
   })
 );
 
-app.use(redirectLoop());
+app.use(redirectLoop({
+  defaultPath: '/',
+  maxRedirects: 5
+}));
 
 app.get('/', (req, res) => res.sendStatus(200));
 app.get('/bar', (req, res) => res.redirect('/foo'));
