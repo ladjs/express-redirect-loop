@@ -52,7 +52,7 @@
     "xo": "^0.23.0"
   },
   "engines": {
-    "node": ">=8.3"
+    "node": ">=6.4"
   },
   "files": "lib",
   "homepage": "https://github.com/niftylettuce/express-redirect-loop",
