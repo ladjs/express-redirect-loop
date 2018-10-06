@@ -1,24 +1,23 @@
+const { parse } = require('url');
 const deprecate = require('depd')('express');
 
 module.exports = opts => {
-  opts = Object.assign(
-    {
-      defaultPath: '/',
-      maxRedirects: 5
-    },
-    opts
-  );
+  opts = {
+    defaultPath: '/',
+    maxRedirects: 5,
+    ...opts
+  };
   const { defaultPath, maxRedirects } = opts;
   return (req, res, next) => {
     if (!req.session)
       return next(new Error('Sessions required for `express-redirect-loop`'));
 
-    const end = res.end;
+    const { redirect, end } = res;
 
     res.end = function(chunk, encoding) {
       if (!req.xhr) {
         req.session.prevPrevPath = req.session.prevPath;
-        req.session.prevPath = req.path;
+        req.session.prevPath = req.originalUrl;
         // if it was a redirect then store how many times
         // so that we can limit the max number of redirects
         if ([301, 302].includes(res.statusCode))
@@ -31,13 +30,12 @@ module.exports = opts => {
       end.call(res, chunk, encoding);
     };
 
-    const redirect = res.redirect;
-    res.redirect = function(url) {
+    res.redirect = function(url, ...args) {
       let address = url;
       let status = 302;
 
       // allow status/url
-      const args = [].slice.call(arguments);
+      args = [url].concat(args);
       if (args.length === 2) {
         if (typeof args[0] === 'number') {
           status = args[0];
@@ -57,12 +55,19 @@ module.exports = opts => {
       req.maxRedirects = req.session.maxRedirects || 1;
 
       if (req.prevPath && address === req.prevPath) {
-        address =
+        if (
           req.prevPrevPath &&
           address !== req.prevPrevPath &&
           req.maxRedirects <= maxRedirects
-            ? req.prevPrevPath
-            : '/';
+        ) {
+          address = req.prevPrevPath;
+        } else {
+          // if the prevPrevPath w/o querystring is !== prevPrevPath
+          // then redirect then to prevPrevPath w/o querystring
+          const { pathname } = parse(req.prevPrevPath);
+          if (pathname === req.prevPrevPath) address = '/';
+          else address = pathname;
+        }
       }
 
       redirect.call(res, status, address);

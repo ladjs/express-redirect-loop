@@ -3,7 +3,7 @@ const express = require('express');
 const fetch = require('fetch-cookie/node-fetch')(require('node-fetch'));
 const session = require('express-session');
 
-const redirectLoop = require('../');
+const redirectLoop = require('..');
 
 test.beforeEach(t => {
   const app = express();
