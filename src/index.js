@@ -1,4 +1,4 @@
-const { parse } = require('url');
+const Url = require('url-parse');
 const deprecate = require('depd')('express');
 
 module.exports = opts => {
@@ -17,7 +17,9 @@ module.exports = opts => {
     res.end = function(chunk, encoding) {
       if (!req.xhr) {
         req.session.prevPrevPath = req.session.prevPath;
+        req.session.prevPrevMethod = req.session.prevMethod;
         req.session.prevPath = req.originalUrl;
+        req.session.prevMethod = req.method;
         // if it was a redirect then store how many times
         // so that we can limit the max number of redirects
         if ([301, 302].includes(res.statusCode))
@@ -27,6 +29,7 @@ module.exports = opts => {
               : 1;
         else req.session.maxRedirects = 0;
       }
+
       end.call(res, chunk, encoding);
     };
 
@@ -51,10 +54,16 @@ module.exports = opts => {
       address = this.location(address).get('Location');
 
       req.prevPrevPath = req.session.prevPrevPath || defaultPath;
+      req.prevPrevMethod = req.session.prevPrevMethod || 'GET';
       req.prevPath = req.session.prevPath || defaultPath;
+      req.prevMethod = req.session.prevMethod || req.method;
       req.maxRedirects = req.session.maxRedirects || 1;
 
-      if (req.prevPath && address === req.prevPath) {
+      if (
+        req.prevPath &&
+        address === req.prevPath &&
+        req.method === req.prevMethod
+      ) {
         if (
           req.prevPrevPath &&
           address !== req.prevPrevPath &&
@@ -64,7 +73,7 @@ module.exports = opts => {
         } else {
           // if the prevPrevPath w/o querystring is !== prevPrevPath
           // then redirect then to prevPrevPath w/o querystring
-          const { pathname } = parse(req.prevPrevPath);
+          const { pathname } = new Url(req.prevPrevPath, {});
           if (pathname === req.prevPrevPath) address = '/';
           else address = pathname;
         }
@@ -72,6 +81,7 @@ module.exports = opts => {
 
       redirect.call(res, status, address);
     };
+
     next();
   };
 };
