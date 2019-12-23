@@ -7,7 +7,6 @@ module.exports = opts => {
     maxRedirects: 5,
     ...opts
   };
-  const { defaultPath, maxRedirects } = opts;
   return (req, res, next) => {
     if (!req.session)
       return next(new Error('Sessions required for `express-redirect-loop`'));
@@ -15,9 +14,10 @@ module.exports = opts => {
     const { redirect, end } = res;
 
     res.end = function(chunk, encoding) {
-      if (!req.xhr) {
+      // instead of `!req.xhr` we need to use !accepts HTML
+      // because Fetch does not provide XMLHttpRequest
+      if (req.accepts('html')) {
         req.session.prevPrevPath = req.session.prevPath;
-        req.session.prevPrevMethod = req.session.prevMethod;
         req.session.prevPath = req.originalUrl;
         req.session.prevMethod = req.method;
         // if it was a redirect then store how many times
@@ -53,30 +53,27 @@ module.exports = opts => {
 
       address = this.location(address).get('Location');
 
-      req.prevPrevPath = req.session.prevPrevPath || defaultPath;
-      req.prevPrevMethod = req.session.prevPrevMethod || 'GET';
-      req.prevPath = req.session.prevPath || defaultPath;
-      req.prevMethod = req.session.prevMethod || req.method;
-      req.maxRedirects = req.session.maxRedirects || 1;
+      const prevPrevPath = req.session.prevPrevPath || opts.defaultPath;
+      const prevPath = req.session.prevPath || opts.defaultPath;
+      const prevMethod = req.session.prevMethod || req.method;
+      const maxRedirects = req.session.maxRedirects || 1;
 
-      if (
-        req.prevPath &&
-        address === req.prevPath &&
-        req.method === req.prevMethod
-      ) {
+      if (prevPath && address === prevPath && req.method === prevMethod) {
         if (
-          req.prevPrevPath &&
-          address !== req.prevPrevPath &&
-          req.maxRedirects <= maxRedirects
+          prevPrevPath &&
+          address !== prevPrevPath &&
+          maxRedirects <= opts.maxRedirects
         ) {
-          address = req.prevPrevPath;
+          address = prevPrevPath;
         } else {
           // if the prevPrevPath w/o querystring is !== prevPrevPath
           // then redirect then to prevPrevPath w/o querystring
-          const { pathname } = new Url(req.prevPrevPath, {});
-          if (pathname === req.prevPrevPath) address = '/';
+          const { pathname } = new Url(prevPrevPath, {});
+          if (pathname === prevPrevPath) address = '/';
           else address = pathname;
         }
+      } else if (maxRedirects > opts.maxRedirects) {
+        address = opts.defaultPath;
       }
 
       redirect.call(res, status, address);

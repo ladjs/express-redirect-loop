@@ -25,12 +25,13 @@ test.beforeEach(t => {
   app.get('/baz', (req, res) => res.redirect('/bar'));
   app.get('/beep', (req, res) => res.sendStatus(200));
   app.get('/boop', (req, res) => res.redirect('/boop'));
-  app.get('/1', (req, res) => res.redirect('/2'));
-  app.get('/2', (req, res) => res.redirect('/3'));
-  app.get('/3', (req, res) => res.redirect('/4'));
-  app.get('/4', (req, res) => res.redirect('/4')); // <-- should be 5
-  app.get('/5', (req, res) => res.redirect('/6'));
-  app.get('/6', (req, res) => res.redirect('/7'));
+  app.get('/1', (req, res) => res.redirect('/2')); // 1
+  app.get('/2', (req, res) => res.redirect('/3')); // 2
+  app.get('/3', (req, res) => res.redirect('/4')); // 3
+  app.get('/4', (req, res) => res.redirect('/5')); // 4
+  app.get('/5', (req, res) => res.redirect('/6')); // 5
+  app.get('/6', (req, res) => res.redirect('/7')); // 6 <-- redirects to /
+  app.get('/7', (req, res) => res.redirect('/8'));
   app.get('/form', (req, res) => res.sendStatus(200));
   app.post('/form', (req, res) => res.redirect('/form'));
   app.use((err, req, res, next) => {
@@ -45,9 +46,8 @@ test('caps at max of 5 redirects', async t => {
   const res = await fetch(`${t.context.url}1`, {
     credentials: 'include'
   });
-  console.log('res', res, 'res.body', res.body);
   t.is(res.status, 200);
-  t.is(res.url, t.context.url);
+  t.is(res.url, `${t.context.url}`);
   t.pass();
 });
 
