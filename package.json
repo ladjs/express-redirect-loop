@@ -1,7 +1,7 @@
 {
   "name": "express-redirect-loop",
   "description": "Prevent redirect loops with sessions since HTTP referrer header is unreliable",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "author": "Nick Baugh <niftylettuce@gmail.com> (http://niftylettuce.com/)",
   "ava": {
     "failFast": true,
