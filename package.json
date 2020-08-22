@@ -25,38 +25,31 @@
     "url-parse": "^1.4.7"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.7",
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "^7.7.7",
-    "@commitlint/cli": "^8.2.0",
-    "@commitlint/config-conventional": "^8.2.0",
-    "ava": "^2.4.0",
-    "cabin": "^5.0.13",
-    "codecov": "^3.6.1",
-    "cross-env": "^6.0.3",
-    "eslint": "6.8.0",
-    "eslint-config-prettier": "^6.7.0",
+    "@commitlint/cli": "^9.1.2",
+    "@commitlint/config-conventional": "^9.1.2",
+    "ava": "^3.11.1",
+    "cabin": "^8.0.7",
+    "codecov": "^3.7.2",
+    "cross-env": "^7.0.2",
+    "eslint": "^7.7.0",
     "eslint-config-xo-lass": "^1.0.3",
-    "eslint-plugin-node": "^10.0.0",
-    "eslint-plugin-prettier": "^3.1.2",
     "express": "^4.17.1",
-    "express-session": "^1.17.0",
-    "fetch-cookie": "^0.7.3",
-    "fixpack": "^2.3.1",
-    "husky": "^3.1.0",
-    "lint-staged": "^9.5.0",
+    "express-session": "^1.17.1",
+    "fetch-cookie": "^0.10.1",
+    "fixpack": "^3.0.6",
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.11",
     "node-fetch": "^2.6.0",
-    "nyc": "^14.1.1",
-    "prettier": "^1.19.1",
-    "remark-cli": "^7.0.1",
-    "remark-preset-github": "^0.0.16",
-    "rimraf": "^3.0.0",
-    "xo": "^0.25.3"
+    "nyc": "^15.1.0",
+    "remark-cli": "^8.0.1",
+    "remark-preset-github": "^3.0.0",
+    "rimraf": "^3.0.2",
+    "xo": "^0.33.0"
   },
   "engines": {
-    "node": ">=6.4"
+    "node": ">=8.3.0"
   },
-  "files": "lib",
+  "files": "index.js",
   "homepage": "https://github.com/niftylettuce/express-redirect-loop",
   "husky": {
     "hooks": {
@@ -104,7 +97,7 @@
       ]
     }
   },
-  "main": "lib/index.js",
+  "main": "index.js",
   "prettier": {
     "singleQuote": true,
     "bracketSpacing": true,
@@ -121,20 +114,20 @@
   },
   "scripts": {
     "ava": "cross-env NODE_ENV=test ava",
-    "build": "npm run build:clean && npm run build:lib",
-    "build:clean": "rimraf lib",
-    "build:lib": "babel src --out-dir lib",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "lint": "xo && remark . -qfo && eslint lib",
+    "lint": "xo && remark . -qfo",
     "nyc": "cross-env NODE_ENV=test nyc ava",
-    "test": "npm run build && npm run lint && npm run ava",
-    "test-coverage": "npm run build && npm run lint && npm run nyc"
+    "test": "npm run lint && npm run ava",
+    "test-coverage": "npm run lint && npm run nyc"
   },
   "xo": {
     "prettier": true,
     "space": true,
     "extends": [
       "xo-lass"
-    ]
+    ],
+    "rules": {
+      "unicorn/prevent-abbreviations": "warn"
+    }
   }
 }
