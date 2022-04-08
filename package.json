@@ -22,7 +22,7 @@
   ],
   "dependencies": {
     "depd": "^2.0.0",
-    "url-parse": "^1.4.7"
+    "url-parse": "^1.5.10"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
